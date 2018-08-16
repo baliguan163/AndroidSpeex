@@ -16,7 +16,6 @@ void *enc_state;
 void *dec_state;
 static JavaVM *gJavaVM;
 
-
 //一：编码流程
 //使用Speex的API函数对音频数据进行压缩编码要经过如下步骤：
 //1、定义一个SpeexBits类型变量bits和一个Speex编码器状态变量enc_state。
@@ -62,12 +61,12 @@ JNIEXPORT jint JNICALL Java_com_audio_lib_SpeexUtil_open
 	return (jint)0;
 }
 
-
 //encode()方法中有short lin[], int offset, byte encoded[], int size四个参数，
 //		其中short lin[]表示录音得到的short型数据，
 //		int offset为跳过的字节数，
 //		byte encoded[]为压缩后的byte型数据，
-//		int size为数据的长度；
+//		int size为数据的长度;
+
 extern "C"
 JNIEXPORT jint JNICALL Java_com_audio_lib_SpeexUtil_encode
     (JNIEnv *env, jobject obj,
@@ -88,12 +87,9 @@ JNIEXPORT jint JNICALL Java_com_audio_lib_SpeexUtil_encode
 		speex_encode_int(enc_state, buffer, &ebits);
 	}
 
-	tot_bytes = speex_bits_write(&ebits, (char *)output_buffer,
-				     enc_frame_size);
-	env->SetByteArrayRegion(encoded, 0, tot_bytes,
-				output_buffer);
-
-        return (jint)tot_bytes;
+	tot_bytes = speex_bits_write(&ebits, (char *)output_buffer,enc_frame_size);
+	env->SetByteArrayRegion(encoded, 0, tot_bytes,output_buffer);
+    return (jint)tot_bytes;
 }
 
 
@@ -103,7 +99,8 @@ JNIEXPORT jint JNICALL Java_com_audio_lib_SpeexUtil_encode
 //		int size为数据大小；
 extern "C"
 JNIEXPORT jint JNICALL Java_com_audio_lib_SpeexUtil_decode
-    (JNIEnv *env, jobject obj, jbyteArray encoded, jshortArray lin, jint size) {
+    (JNIEnv *env, jobject obj,
+    		jbyteArray encoded, jshortArray lin, jint size) {
 
         jbyte buffer[dec_frame_size];
         jshort output_buffer[dec_frame_size];
@@ -113,8 +110,8 @@ JNIEXPORT jint JNICALL Java_com_audio_lib_SpeexUtil_decode
 		return 0;
 
 	env->GetByteArrayRegion(encoded, 0, encoded_length, buffer);
-	speex_bits_read_from(&dbits, (char *)buffer, encoded_length);
-	speex_decode_int(dec_state, &dbits, output_buffer);
+	speex_bits_read_from(&dbits, (char *)buffer, encoded_length);//读取解码数据
+	speex_decode_int(dec_state, &dbits, output_buffer);//解码
 	env->SetShortArrayRegion(lin, 0, dec_frame_size,output_buffer);
 	return (jint)dec_frame_size;
 }
