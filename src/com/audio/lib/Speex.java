@@ -24,9 +24,7 @@ class Speex  {
         } catch (Throwable e) {  
             e.printStackTrace();  
         }  
-  
     }  
-  
     public native int open(int compression);  
     public native int getFrameSize();  
     public native int decode(byte encoded[], short lin[], int size);  
